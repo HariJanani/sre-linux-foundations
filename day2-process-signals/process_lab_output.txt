@@ -1,0 +1,44 @@
+==================================================
+   DAY 2 SRE LAB: PROCESS LIFECYCLE DIAGNOSTICS   
+==================================================
+Execution Time: Sat Oct 17 15:33:04 UTC 2026
+
+=== 1. DEMONSTRATING ZOMBIE PROCESS (STATE Z) ===
+[CHILD] PID 1600: I am exiting now...
+
+--- Process Status Output (Looking for 'Z' State) ---
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root        1600  0.0  0.0      0     0 pts/1    Z+   15:33   0:00 [zombie] <defunct>
+[PARENT] PID 1598: Created Child PID 1600
+[PARENT] Sleeping for 10 seconds WITHOUT calling wait()...
+[PARENT] Waking up! Calling wait() to reap child PID 1600...
+[PARENT] Child reaped successfully. Exiting parent.
+
+--- Process Status After Parent Reaps Child ---
+Zombie reaped successfully from process table.
+
+==================================================
+=== 2. DEMONSTRATING ORPHAN PROCESS & RE-PARENTING ===
+[INITIAL] Process PID: 1618, Parent PID (PPID): 1594
+[PARENT] Started. PID: 1618, Created Child PID: 1619
+[PARENT] Parent exiting immediately (abandoning child)...
+
+==================================================
+=== 3. DEMONSTRATING SIGNAL TRAPPING (SIGTERM) ===
+[APP] Running service on PID 1622...
+Sending SIGTERM (kill -15) to Application PID 1622...
+[SIGNAL TRAPPED] Received SIGTERM on PID 1622! Graceful exit.
+
+==================================================
+Lab completed. Output saved to process_lab_output.txt
+[INITIAL] Process PID: 1618, Parent PID (PPID): 1594
+[CHILD] Started. My PID: 1619, Original Parent PID: 1618
+[CHILD] Sleeping for 6 seconds waiting to become orphaned...
+[CHILD] Tick 1s | Current Parent PID (PPID): 1
+[CHILD] Tick 2s | Current Parent PID (PPID): 1
+[CHILD] Tick 3s | Current Parent PID (PPID): 1
+[CHILD] Tick 4s | Current Parent PID (PPID): 1
+[CHILD] Tick 5s | Current Parent PID (PPID): 1
+[CHILD] Tick 6s | Current Parent PID (PPID): 1
+[CHILD] Child execution complete.
