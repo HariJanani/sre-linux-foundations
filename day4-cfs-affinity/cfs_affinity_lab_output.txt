@@ -1,0 +1,78 @@
+==================================================
+   DAY 4 SRE LAB: CFS SCHEDULER & CPU AFFINITY    
+==================================================
+Execution Time: Sun Oct 18 17:35:03 UTC 2026
+Available CPU Cores: 1
+
+=== 1. TESTING CPU AFFINITY PINNING (taskset) ===
+Spawning stress-ng worker pinned strictly to CPU Core 0...
+stress-ng: info:  [4321] setting to a 6 secs run per stressor
+stress-ng: info:  [4321] dispatching hogs: 1 cpu
+
+--- Verifying Active CPU Affinity Mask ---
+pid 4321's current affinity mask: 1
+
+--- Process Core Allocation Snapshot (mpstat) ---
+Linux 6.8.0-146-generic (ubuntu) 	10/18/26 	_x86_64_	(1 CPU)
+
+17:35:04     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+17:35:05     all  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00
+17:35:05       0  100.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00
+
+17:35:05     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+17:35:06     all   97.00    0.00    2.00    0.00    0.00    0.00    1.00    0.00    0.00    0.00
+17:35:06       0   97.00    0.00    2.00    0.00    0.00    0.00    1.00    0.00    0.00    0.00
+
+17:35:06     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+17:35:07     all   99.00    0.00    1.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00
+17:35:07       0   99.00    0.00    1.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00
+
+Average:     CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
+Average:     all   98.67    0.00    1.00    0.00    0.00    0.00    0.33    0.00    0.00    0.00
+Average:       0   98.67    0.00    1.00    0.00    0.00    0.00    0.33    0.00    0.00    0.00
+stress-ng: info:  [4321] skipped: 0
+stress-ng: info:  [4321] passed: 1: cpu (1)
+stress-ng: info:  [4321] failed: 0
+stress-ng: info:  [4321] metrics untrustworthy: 0
+stress-ng: info:  [4321] successful run completed in 6.00 secs
+
+==================================================
+=== 2. DEMONSTRATING CFS NICE PRIORITY CONTENTION ===
+Launching Low Priority (+19) and High Priority (-10) tasks on Core 0...
+stress-ng: info:  [4336] setting to a 8 secs run per stressor
+stress-ng: info:  [4336] dispatching hogs: 1 cpu
+stress-ng: info:  [4335] setting to a 8 secs run per stressor
+
+--- Process Priority & CPU Distribution (ps) ---
+    PID  NI PRI %CPU STAT COMMAND
+   4335  19   0  0.0 RNL+ stress-ng
+   4336 -10  29  0.0 S<L+ stress-ng
+stress-ng: info:  [4335] dispatching hogs: 1 cpu
+stress-ng: info:  [4336] skipped: 0
+stress-ng: info:  [4336] passed: 1: cpu (1)
+stress-ng: info:  [4336] failed: 0
+stress-ng: info:  [4336] metrics untrustworthy: 0
+stress-ng: info:  [4336] successful run completed in 8.00 secs
+stress-ng: info:  [4335] skipped: 0
+stress-ng: info:  [4335] passed: 1: cpu (1)
+stress-ng: info:  [4335] failed: 0
+stress-ng: info:  [4335] metrics untrustworthy: 0
+stress-ng: info:  [4335] successful run completed in 8.56 secs
+
+==================================================
+=== 3. REAL-TIME SCHEDULER PREEMPTION (SCHED_FIFO via chrt) ===
+Spawning Real-Time (SCHED_FIFO, Priority 50) task...
+stress-ng: info:  [4357] setting to a 6 secs run per stressor
+stress-ng: info:  [4357] dispatching hogs: 1 cpu
+
+--- Verifying Real-Time Scheduling Policy ---
+pid 4357's current scheduling policy: SCHED_FIFO
+pid 4357's current scheduling priority: 50
+stress-ng: info:  [4357] skipped: 0
+stress-ng: info:  [4357] passed: 1: cpu (1)
+stress-ng: info:  [4357] failed: 0
+stress-ng: info:  [4357] metrics untrustworthy: 0
+stress-ng: info:  [4357] successful run completed in 6.00 secs
+
+==================================================
+Lab completed successfully. Telemetry saved to cfs_affinity_lab_output.txt
