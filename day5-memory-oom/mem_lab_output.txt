@@ -1,0 +1,32 @@
+==================================================
+   DAY 5 SRE LAB: MEMORY & OOM KILLER TELEMETRY   
+==================================================
+Execution Time: Sun Oct 18 17:08:34 UTC 2026
+
+=== 1. CURRENT SYSTEM MEMORY BREAKDOWN (/proc/meminfo) ===
+MemTotal:        1948912 kB
+MemFree:          800004 kB
+MemAvailable:    1485984 kB
+Buffers:           44084 kB
+Cached:           745880 kB
+SwapTotal:       1048572 kB
+SwapFree:        1048572 kB
+
+=== 2. PAGE FAULT RATE MONITORING (sar -B) ===
+Linux 6.8.0-146-generic (ubuntu) 	10/18/26 	_x86_64_	(1 CPU)
+
+17:08:34     pgpgin/s pgpgout/s   fault/s  majflt/s  pgfree/s pgscank/s pgscand/s pgsteal/s    %vmeff
+17:08:35         0.00      0.00     69.00      0.00    220.00      0.00      0.00      0.00      0.00
+17:08:36         0.00      0.00     37.00      0.00      1.00      0.00      0.00      0.00      0.00
+17:08:37         0.00      0.00     36.00      0.00      9.00      0.00      0.00      0.00      0.00
+Average:         0.00      0.00     47.33      0.00     76.67      0.00      0.00      0.00      0.00
+
+=== 3. DEMONSTRATING OOM SCORE TUNING ===
+Spawned Test Process PID: 1908
+Initial Kernel oom_score: 666
+Initial Kernel oom_score_adj: 0
+Updated oom_score_adj to +500...
+New Kernel oom_score: 1000
+
+==================================================
+Lab completed successfully. Telemetry saved to mem_lab_output.txt
