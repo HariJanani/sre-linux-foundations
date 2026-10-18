@@ -1,0 +1,52 @@
+==================================================
+   DAY 3 SRE LAB: CPU & CONTEXT SWITCH TELEMETRY  
+==================================================
+Execution Time: Sun Oct 18 15:57:00 UTC 2026
+Total CPU Cores Available: 1
+
+=== 1. BASELINE SYSTEM METRICS (IDLE) ===
+--- vmstat Baseline (3 seconds) ---
+procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu-------
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st gu
+ 1  0      0 460384  51104 1122524    0    0   466   437  216    3  1  1 98  0  0  0
+ 0  0      0 460384  51104 1122556    0    0     0     0  174  296  0  0 100  0  0  0
+ 0  0      0 460384  51104 1122556    0    0     0     0  140  237  0  0 100  0  0  0
+
+=== 2. STRESSING CPU CORES & CAPTURING INVOLUNTARY CONTEXT SWITCHES ===
+Spawning 8 CPU-bound stress-ng threads on a 1-core machine for 10s...
+cpu-method must be one of: all ackermann apery bitops callfunc cdouble cfloat clongdouble collatz correlate crc16 dither div8 div16 div32 div64 div128 double euler explog factorial fibonacci fft fletcher16 float floatconversion gamma gcd gray hamming hanoi hyperbolic idct int128 int64 int32 int16 int8 int128float int128double int128longdouble int64float int64double int64longdouble int32float int32double int32longdouble intconversion ipv4checksum jmp lfsr32 ln2 logmap longdouble loop matrixprod nsqrt omega parity phi pi prime psi queens rand rand48 rgb sieve stats sqrt trig union zeta
+
+--- Process-Level Context Switches (stress-ng PID 2376) ---
+Linux 6.8.0-146-generic (ubuntu) 	10/18/26 	_x86_64_	(1 CPU)
+
+15:57:04      UID       PID   cswch/s nvcswch/s  Command
+
+--- System-Wide CPU & Context Switch Impact (vmstat) ---
+procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu-------
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st gu
+ 0  0      0 460384  51104 1123152    0    0   465   436  216    3  1  1 98  0  0  0
+ 0  0      0 460384  51104 1123152    0    0     0    64  176  286  0  0 100  0  0  0
+ 0  0      0 460384  51104 1123152    0    0     0     0  134  252  1  0 99  0  0  0
+ 0  0      0 460384  51116 1123140    0    0     0  4456  239  320  0  0 98  1  1  0
+
+==================================================
+=== 3. GENERATING HIGH VOLUNTARY CONTEXT SWITCHES (I/O & SCHEDULING) ===
+Spawning 16 yield-stressor workers for 10s...
+stress-ng: unrecognized option '--schedyield'
+Try 'stress-ng --help' for more information.
+
+--- Process-Level Voluntary vs. Involuntary Switches ---
+Linux 6.8.0-146-generic (ubuntu) 	10/18/26 	_x86_64_	(1 CPU)
+
+15:57:10      UID       PID   cswch/s nvcswch/s  Command
+
+--- System-Wide Impact of Yield Stressors (vmstat) ---
+procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu-------
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st gu
+ 0  0      0 460384  51116 1123156    0    0   463   472  216    3  1  1 98  0  0  0
+ 0  0      0 460384  51116 1123156    0    0     0     0  175  334  0  0 100  0  0  0
+ 0  0      0 460384  51116 1123156    0    0     0     0  143  249  1  0 99  0  0  0
+ 0  0      0 460384  51116 1123156    0    0     0     0  149  318  0  0 100  0  0  0
+
+==================================================
+Lab completed successfully. Telemetry saved to cpu_context_lab_output.txt
