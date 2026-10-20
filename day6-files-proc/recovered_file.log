@@ -1,0 +1,3 @@
+CRITICAL DATA: Log entry created before file unlinking event.
+RECOVERY DATA: This payload must be recovered via /proc filesystem.
+POST-UNLINK DATA: Written after directory unlinking!

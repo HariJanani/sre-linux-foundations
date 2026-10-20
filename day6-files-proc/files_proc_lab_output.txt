@@ -1,0 +1,20 @@
+=== DAY 6 SRE LAB: FILESYSTEM & PROC DIAGNOSTICS ===
+[PROCESS] Running with PID: 2090
+[KERNEL] Assigned File Descriptor: FD 3
+[PROC] Process FD Link Path: /proc/2090/fd/3
+[UNLINK] File 'critical_application.log' unlinked from directory entry.
+20+0 records in
+20+0 records out
+20971520 bytes (21 MB, 20 MiB) copied, 0.0122247 s, 1.7 GB/s
+mke2fs 1.47.0 (5-Feb-2023)
+Discarding device blocks:    0/5120         done                            
+Creating filesystem with 5120 4k blocks and 2000 inodes
+
+Allocating group tables: 0/1   done                            
+Writing inode tables: 0/1   done                            
+Creating journal (1024 blocks): done
+Writing superblocks and filesystem accounting information: 0/1   done
+
+[EXHAUSTION FIRED] OS Error: [Errno 28] No space left on device: '/mnt/inode_test/dummy_inode_1989.txt'
+Filesystem     Inodes IUsed IFree IUse% Mounted on
+/dev/loop0       2000  2000     0  100% /mnt/inode_test
