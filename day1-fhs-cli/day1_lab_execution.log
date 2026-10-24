@@ -1,0 +1,116 @@
+Starting Day 1 Hands-On Lab Execution at Sat Oct 24 18:22:36 UTC 2026
+
+======================================================================
+STEP: 1. Verify Initial Location with 'pwd'
+EXPLANATION: In production troubleshooting, you must always verify your current working directory to avoid issuing destructive commands in unintended directories.
+RUNNING COMMAND: pwd
+----------------------------------------------------------------------
+/root/sre-foundations/day1-fhs-cli
+
+======================================================================
+STEP: 2. Navigate to /etc via Absolute Path
+EXPLANATION: We use an absolute path starting with '/' to move into /etc, the repository of static host configurations.
+RUNNING COMMAND: cd /etc && pwd
+----------------------------------------------------------------------
+/etc
+
+======================================================================
+STEP: 3. View System Release & Hostname Configs
+EXPLANATION: SREs inspect /etc/os-release to determine the exact Linux distribution and kernel compatibility when debugging software issues.
+RUNNING COMMAND: cat /etc/os-release | grep -E '^(PRETTY_NAME|VERSION_ID)='
+----------------------------------------------------------------------
+PRETTY_NAME="Ubuntu 24.04.5 LTS"
+VERSION_ID="24.04"
+
+======================================================================
+STEP: 4. Inspect DNS Nameserver Configuration
+EXPLANATION: /etc/resolv.conf defines where the host sends DNS lookup requests. Corrupted nameservers lead directly to network resolution failures.
+RUNNING COMMAND: cat /etc/resolv.conf | grep 'nameserver'
+----------------------------------------------------------------------
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+
+======================================================================
+STEP: 5. Navigate from /etc to /var/log via Relative Path
+EXPLANATION: Using the relative navigation anchor '..' allows you to traverse up to root and down to /var/log without writing an absolute path.
+RUNNING COMMAND: cd ../var/log && pwd
+----------------------------------------------------------------------
+./day1-fhs-navigation.sh: line 21: cd: ../var/log: No such file or directory
+
+======================================================================
+STEP: 6. Inspect Log Directory Metadata with 'ls -lah'
+EXPLANATION: 'ls -lah' displays hidden dot files (-a), permissions and ownership (-l), and human-readable file sizes (-h).
+RUNNING COMMAND: ls -lah | head -n 12
+----------------------------------------------------------------------
+total 28K
+drwxr-xr-x 2 root root 4.0K Oct 24 18:05 .
+drwxr-xr-x 3 root root 4.0K Oct 24 18:00 ..
+-rwxr-xr-x 1 root root 5.6K Oct 24 18:05 day1-fhs-navigation.sh
+-rw-r--r-- 1 root root 5.5K Oct 24 18:04 day1-theory-notes.txt
+-rw-r--r-- 1 root root 2.5K Oct 24 18:22 day1_lab_execution.log
+
+======================================================================
+STEP: 7. Toggle to Previous Directory with 'cd -'
+EXPLANATION: 'cd -' acts as an instantaneous toggle between your last two directories, essential for moving quickly between log locations and config directories.
+RUNNING COMMAND: cd - && pwd
+----------------------------------------------------------------------
+/root
+/root
+
+======================================================================
+STEP: 8. Return Back to /var/log with 'cd -'
+EXPLANATION: Toggling once more brings us straight back to /var/log.
+RUNNING COMMAND: cd - && pwd
+----------------------------------------------------------------------
+/root
+/root
+
+======================================================================
+STEP: 9. Inspect CPU Architecture from Kernel Memory
+EXPLANATION: /proc/cpuinfo exposes raw CPU metrics directly from kernel memory. It consumes 0 bytes of physical disk space.
+RUNNING COMMAND: grep -m 1 'model name' /proc/cpuinfo && echo -n 'Total Logical Cores: ' && grep -c ^processor /proc/cpuinfo
+----------------------------------------------------------------------
+model name	: Intel Xeon E312xx (Sandy Bridge, IBRS update)
+Total Logical Cores: 1
+
+======================================================================
+STEP: 10. Inspect RAM State from /proc/meminfo
+EXPLANATION: /proc/meminfo gives granular memory telemetry. SREs look at 'MemAvailable', not 'MemFree', to evaluate memory saturation before OOM conditions trigger.
+RUNNING COMMAND: grep -E '^(MemTotal|MemFree|MemAvailable|Buffers|Cached):' /proc/meminfo
+----------------------------------------------------------------------
+MemTotal:        1948912 kB
+MemFree:         1173804 kB
+MemAvailable:    1516788 kB
+Buffers:           42724 kB
+Cached:           413300 kB
+
+======================================================================
+STEP: 11. Inspect the Shell Process Environment via /proc/self/environ
+EXPLANATION: /proc/self is a dynamic symlink to the process currently reading it. Environment variables are stored as null-byte ('\0') separated strings, so we translate them to newlines.
+RUNNING COMMAND: cat /proc/self/environ | tr '\0' '\n' | grep -E '^(PATH|USER|HOME|SHELL)='
+----------------------------------------------------------------------
+SHELL=/bin/bash
+HOME=/root
+USER=root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/go/bin:/snap/bin
+
+======================================================================
+STEP: 12. Inspect Cgroups v2 & Storage Interfaces in /sys
+EXPLANATION: /sysfs exposes physical device properties and control group limits used by Docker and Kubernetes to restrict memory and CPU.
+RUNNING COMMAND: ls -d /sys/fs/cgroup /sys/block /sys/class/net
+----------------------------------------------------------------------
+/sys/block
+/sys/class/net
+/sys/fs/cgroup
+
+======================================================================
+STEP: 13. Return Home with 'cd ~' and Verify Final Location
+EXPLANATION: Using '~' immediately takes you to your user's home directory regardless of your current position in the filesystem tree.
+RUNNING COMMAND: cd ~ && pwd
+----------------------------------------------------------------------
+/root
+
+======================================================================
+Day 1 Hands-On Lab Execution Completed Successfully!
+All outputs and telemetry logged to: day1_lab_execution.log
+======================================================================

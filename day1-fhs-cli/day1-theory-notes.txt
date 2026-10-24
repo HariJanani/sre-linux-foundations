@@ -1,0 +1,107 @@
+================================================================================
+DAY 1: LINUX FHS, NAVIGATION, PATH RESOLUTION & PSEUDO-FILESYSTEMS
+Author: HariJanani
+Repository: sre-foundations
+Module: Module 0: Linux & Git Foundations
+================================================================================
+
+1. THE FILESYSTEM HIERARCHY STANDARD (FHS)
+--------------------------------------------------------------------------------
+Linux organizes all storage, devices, runtime memory, and processes in a single
+hierarchical inverted tree starting at the root directory ('/').
+
+CORE DIRECTORIES & SRE APPLICABILITY:
+
+/etc (System Configuration Files)
+  - Purpose: Contains static, host-specific system and service configuration files.
+  - SRE Significance: Contains no binaries. Key troubleshooting files include:
+      * /etc/hosts         : Static local DNS mappings.
+      * /etc/resolv.conf    : Active DNS nameserver resolvers.
+      * /etc/fstab          : Static filesystem mount points and options.
+      * /etc/security/limits.conf : Per-user OS limits (file descriptors, max processes).
+      * /etc/systemd/system/: Service unit definitions for daemons.
+
+/var (Variable Data)
+  - Purpose: Dynamic, actively modified files (logs, spools, caches, locks).
+  - SRE Significance: Runaway logging can fill /var. If not isolated on a 
+    separate disk partition, it can consume the entire root partition ('/').
+      * /var/log/          : Application and kernel logs (syslog, nginx, auth.log).
+      * /var/run (-> /run) : Volatile runtime state (PID files, sockets).
+      * /var/spool/        : Queued background jobs (mail, cron).
+
+/proc (Process & Kernel Memory Pseudo-Filesystem)
+  - Purpose: An in-memory virtual filesystem generated on the fly by the Linux kernel.
+    It consumes 0 bytes of disk storage.
+  - SRE Significance: The direct debugging window into kernel memory and running processes.
+      * /proc/cpuinfo      : CPU topology, cores, flags, architecture.
+      * /proc/meminfo      : Granular RAM state (MemAvailable, Buffers, Cached, Dirty).
+      * /proc/sys/         : Runtime kernel parameters tunable via sysctl.
+      * /proc/<PID>/environ: Raw environment variables of a specific process.
+      * /proc/<PID>/fd/    : Open file descriptor symlinks (used to recover deleted files).
+      * /proc/<PID>/status : Process state (R, S, D, Z), VmRSS memory footprint.
+
+/sys (Hardware, Device & Cgroup Pseudo-Filesystem)
+  - Purpose: Exposes kernel device drivers, block storage, and subsystem limits (sysfs).
+  - SRE Significance:
+      * /sys/fs/cgroup/    : Control Groups v2 resource limits (CPU throttling, memory limits).
+      * /sys/block/        : Storage scheduler parameters and rotational flags.
+      * /sys/class/net/    : Physical/virtual network interface states and MTU sizes.
+
+/dev (Device Nodes)
+  - Contains special character and block device nodes (e.g., /dev/sda, /dev/null, /dev/urandom).
+
+
+2. ABSOLUTE VS. RELATIVE PATHS
+--------------------------------------------------------------------------------
+ABSOLUTE PATH:
+  - Definition: Full location of a file or directory starting from the root ('/').
+  - Always begins with a forward slash ('/').
+  - Operates identically regardless of your current working directory.
+  - Example: /var/log/nginx/access.log, /proc/self/environ
+
+RELATIVE PATH:
+  - Definition: Path defined relative to your Current Working Directory (CWD).
+  - Never begins with a forward slash ('/').
+  - Special symbols:
+      '.'  : The current working directory.
+      '..' : The immediate parent directory (one level up).
+  - Example: If currently in '/etc/nginx', the relative path '../resolv.conf'
+    resolves to '/etc/resolv.conf'.
+
+
+3. COMMAND PRIMITIVES & SYNTAX
+--------------------------------------------------------------------------------
+pwd (Print Working Directory)
+  - Displays the absolute path of the directory you are currently working in.
+  - Flags:
+      * pwd -L : Displays logical path (preserves symlinks).
+      * pwd -P : Displays physical path (resolves all symlinks to true underlying path).
+
+cd (Change Directory)
+  - Moves the shell session between directories.
+  - Variations:
+      * cd /path/to/dir : Navigate via absolute path.
+      * cd ../relative  : Navigate via relative path.
+      * cd or cd ~      : Return to current user's home directory ($HOME).
+      * cd -            : Toggle back to the previous working directory.
+      * cd ..           : Navigate up one parent directory level.
+
+ls (List Directory Contents)
+  - Lists files, directories, and metadata attributes.
+  - SRE Flag Combination: 'ls -lah'
+      * -l : Long format (shows permissions, hard link count, owner, group, size, date).
+      * -a : All entries (includes hidden dot-files like .bashrc and .git).
+      * -h : Human-readable (converts raw byte counts into B, K, M, G, T).
+
+Column Anatomy of 'ls -lah':
+  drwxr-xr-x 2 root root 4.0K Oct 24 10:30 conf.d
+  │└──┬──┘   │ └──┬─┘└──┬─┘  │   └──────┬─────┘  └──┬──┘
+  │   │      │    │     │    │          │           Name
+  │   │      │    │     │    │          Last Modified
+  │   │      │    │     │    Size (Human-readable)
+  │   │      │    │     Group Owner
+  │   │      │    User Owner
+  │   │      Hard link count
+  │   Permissions (rwx: Read, Write, Execute for Owner, Group, Others)
+  File Type ('d' = Directory, '-' = Regular File, 'l' = Symlink)
+================================================================================
